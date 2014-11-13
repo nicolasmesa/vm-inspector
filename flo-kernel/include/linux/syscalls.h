@@ -857,5 +857,7 @@ asmlinkage long sys_process_vm_writev(pid_t pid,
 				      const struct iovec __user *rvec,
 				      unsigned long riovcnt,
 				      unsigned long flags);
-
+asmlinkage long sys_expose_page_table(pid_t pid,
+				unsigned long fake_pgd,
+				unsigned long addr);
 #endif
