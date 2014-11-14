@@ -25,10 +25,14 @@ int main(int argc, char **argv)
 		pid = -1;
 
 
-	address = mmap(0, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+	address = mmap(0, 4096, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
+
+	if (address == MAP_FAILED)
+		printf("Failed\n");
+
 	addr = (long) address;
 
-	fake_pgd_addr = mmap(0, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);;
+	fake_pgd_addr = mmap(0, 4096, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
 	fake_pgd = (long) fake_pgd_addr;
 
 	ret = expose_page_table(pid, fake_pgd, addr);

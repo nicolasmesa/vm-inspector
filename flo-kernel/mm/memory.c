@@ -2287,14 +2287,19 @@ int remap_pfn_range(struct vm_area_struct *vma, unsigned long addr,
 	 * behaviour that some programs depend on. We mark the "original"
 	 * un-COW'ed pages by matching them up with "vma->vm_pgoff".
 	 */
+	trace_printk("Before is_cow_mapping check \n");
 	if (addr == vma->vm_start && end == vma->vm_end) {
 		vma->vm_pgoff = pfn;
 		vma->vm_flags |= VM_PFN_AT_MMAP;
-	} else if (is_cow_mapping(vma->vm_flags))
+	} else if (is_cow_mapping(vma->vm_flags)) {
+		trace_printk("Yes\n");
 		return -EINVAL;
+	}
+
 
 	vma->vm_flags |= VM_IO | VM_RESERVED | VM_PFNMAP;
 
+	trace_printk("Before track_pfn_vma_new\n");
 	err = track_pfn_vma_new(vma, &prot, pfn, PAGE_ALIGN(size));
 	if (err) {
 		/*
@@ -2321,6 +2326,7 @@ int remap_pfn_range(struct vm_area_struct *vma, unsigned long addr,
 	if (err)
 		untrack_pfn_vma(vma, pfn, PAGE_ALIGN(size));
 
+	trace_printk("Got to the end\n");
 	return err;
 }
 EXPORT_SYMBOL(remap_pfn_range);
