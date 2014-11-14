@@ -101,7 +101,7 @@ SYSCALL_DEFINE3(expose_page_table, pid_t, pid, unsigned long, fake_pgd, unsigned
 				printk("After up\n");
 				//pte_unmap(pte);
 				printk("After unmap\n");
-				return 0;
+				addr += PAGE_SIZE;
 			} else {
 				//printk("Not present %d\n", i);
 			}

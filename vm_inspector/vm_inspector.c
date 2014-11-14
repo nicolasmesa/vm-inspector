@@ -7,6 +7,8 @@
 #include <sys/mman.h>
 
 
+#define PAGE_SIZE 4096
+
 int expose_page_table(pid_t pid, unsigned long fake_pgd,
 					unsigned long addr)
 {
@@ -25,14 +27,14 @@ int main(int argc, char **argv)
 		pid = -1;
 
 
-	address = mmap(0, 4096, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
+	address = mmap(0, 2048 * PAGE_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
 
 	if (address == MAP_FAILED)
 		printf("Failed\n");
 
 	addr = (long) address;
 
-	fake_pgd_addr = mmap(0, 4096, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
+	fake_pgd_addr = mmap(0, 3 * PAGE_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
 	fake_pgd = (long) fake_pgd_addr;
 
 	ret = expose_page_table(pid, fake_pgd, addr);
