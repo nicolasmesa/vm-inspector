@@ -9,6 +9,12 @@
 
 #define PAGE_SIZE 4096
 
+typedef struct {
+         unsigned long pte;
+} pte_t;
+
+
+
 int expose_page_table(pid_t pid, unsigned long fake_pgd,
 					unsigned long addr)
 {
@@ -20,7 +26,7 @@ int main(int argc, char **argv)
 	int pid, ret;
 	void *address, *fake_pgd_addr;
 	long addr, fake_pgd;
-
+	unsigned long *addr_new;
 	if (argc > 1)
 		pid = atoi(argv[1]);
 	else
@@ -41,6 +47,17 @@ int main(int argc, char **argv)
 
 	if (ret < 0)
 		printf("Error: %s\n", strerror(errno));
+
+	addr_new = (unsigned long *)address;
+	int ctr = 0;
+
+	for (ctr = 0; ctr < 10; ctr++)
+	{
+		
+		printf("%lu\n", addr_new[ctr]);
+
+	}
+
 
 	return 0;
 }
