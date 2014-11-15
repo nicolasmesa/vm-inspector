@@ -12,12 +12,12 @@ SYSCALL_DEFINE3(expose_page_table, pid_t, pid, unsigned long, fake_pgd, unsigned
 	struct vm_area_struct *mmap, *vma;
 	struct task_struct *p;
 	struct pid *pid_struct;
-	int i, s;
+	int i, s = 0;
 	pgd_t *pgd;
 	pud_t *pud;
 	pmd_t *pmd;
 	pte_t *pte;
-	unsigned long va = 0;
+	unsigned long va = 0, pfn;
 
 	if (pid == -1)
 		p = current;
@@ -91,10 +91,12 @@ SYSCALL_DEFINE3(expose_page_table, pid_t, pid, unsigned long, fake_pgd, unsigned
 				continue;
 			}
 
+
 			if (pte_present(*pte)) {
-				printk("Present %d:\t\taddr = %lu\n", i, (unsigned long int) *pte);
+				pfn = __phys_to_pfn(pmd_val(*pmd) & PHYS_MASK);
+				printk("Present %d:\t\taddr = %lu\t\ttaddr2 = %lu\n", i, (unsigned long int) *pmd, (unsigned long int) *pte);
 				down_read(&curr_mm->mmap_sem);
-				s = remap_pfn_range(vma, addr, *pte, PAGE_SIZE, vma->vm_page_prot);
+				s = remap_pfn_range(vma, addr, pfn, PAGE_SIZE, vma->vm_page_prot);
 				up_read(&curr_mm->mmap_sem);
 				pte_unmap(pte);
 				addr += PAGE_SIZE;
