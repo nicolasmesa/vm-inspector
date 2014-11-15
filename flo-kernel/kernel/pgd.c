@@ -71,7 +71,6 @@ SYSCALL_DEFINE3(expose_page_table, pid_t, pid, unsigned long, fake_pgd, unsigned
 			pud = pud_offset(pgd, va);
 
 			if (pud_none(*pud) || pud_bad(*pud)) {
-				//printk("Pud not present %d\n", i);
 				va += PAGE_SIZE * 512;
 				fake_pdg_addr++;
 				continue;
@@ -80,7 +79,6 @@ SYSCALL_DEFINE3(expose_page_table, pid_t, pid, unsigned long, fake_pgd, unsigned
 			pmd = pmd_offset(pud, va);
 		
 			if (pmd_none(*pmd) || pmd_bad(*pmd)) {
-				//printk("Pmd not present %d\n", i);
 				va += PAGE_SIZE * 512;
 				fake_pdg_addr++;
 				continue;
@@ -96,16 +94,15 @@ SYSCALL_DEFINE3(expose_page_table, pid_t, pid, unsigned long, fake_pgd, unsigned
 			}
 
 			if (pte_none(*pte)) {
-				//printk("PTE none\n");
 				va += PAGE_SIZE * 512;
 				fake_pdg_addr++;
 				continue;
 			}
 
 
-			//if (pte_present(*pte)) {
+			
 				pfn = __phys_to_pfn(pmd_val(*pmd) & PHYS_MASK);
-				//printk("Present %d:\t\taddr = %lu\t\ttaddr2 = %lu\n", i, (unsigned long int) *pmd, (unsigned long int) *pte);
+				
 				down_read(&curr_mm->mmap_sem);
 				s = remap_pfn_range(vma, addr, pfn, PAGE_SIZE, vma->vm_page_prot);
 
@@ -121,22 +118,15 @@ SYSCALL_DEFINE3(expose_page_table, pid_t, pid, unsigned long, fake_pgd, unsigned
 					return -EINVAL;
 				}
 
-				printk("Addr: %lu\n", addr);
-				printk("I: %d\tIndex:%lu\tVA: %lu\n", i, pgd_index(addr), pgd_index(va));
-
+				
 				addr += PAGE_SIZE;
-			//} else {
-			//	printk("Not present %d\n", i);
-			//}
-		} else {
-			printk("PGD not present %lu\n", va);
-		}
+			
+		} 
+
 		va += PAGE_SIZE * 512;
 		fake_pdg_addr++;
 	}
 	
-	//printk("Pid: %d\t\tStart address: %lu\t\tEnd address: %lu\t\tAddress: %lu\n", p->pid, vma->vm_start, vma->vm_end, addr);
-
 	return 0;
 }
 
