@@ -17,7 +17,7 @@ SYSCALL_DEFINE3(expose_page_table, pid_t, pid, unsigned long, fake_pgd, unsigned
 	pud_t *pud;
 	pmd_t *pmd;
 	pte_t *pte;
-	spinlock_t *ptl;
+	unsigned long va = 0;
 
 	if (pid == -1)
 		p = current;
@@ -55,57 +55,56 @@ SYSCALL_DEFINE3(expose_page_table, pid_t, pid, unsigned long, fake_pgd, unsigned
 		return -EINVAL;
 	}
 
-
-	pgd = pgd_offset(mm, 0);
-
+	
 
 	for (i = 0; i < 2048; i++) {
-		if (pgd_present(pgd[i])) {
-			pud = pud_offset(pgd + i, 0);
+		pgd = pgd_offset(mm, va);
 
-			if (pgd_none(*pgd) || pgd_bad(*pgd)) {
+		if (pgd_present(*pgd)) {
+			pud = pud_offset(pgd, va);
+
+			if (pud_none(*pud) || pud_bad(*pud)) {
 				//printk("Pud not present %d\n", i);
+				va += PAGE_SIZE * 512;
 				continue;
 			}
 
-			pmd = pmd_offset(pud, 0);
+			pmd = pmd_offset(pud, va);
 		
 			if (pmd_none(*pmd) || pmd_bad(*pmd)) {
 				//printk("Pmd not present %d\n", i);
+				va += PAGE_SIZE * 512;
 				continue;
 			}
 
-			pte = pte_offset_map(pmd, 0);
+			pte = pte_offset_map(pmd, va);
 
 			if (pte == NULL) {
-				//printk("Was null\n");
+				printk("Was null\n");
+				va += PAGE_SIZE * 512;
 				continue;
 			}
 
 			if (pte_none(*pte)) {
+				//printk("PTE none\n");
+				va += PAGE_SIZE * 512;
 				continue;
 			}
 
 			if (pte_present(*pte)) {
-				printk("Present %d\n", i);
+				printk("Present %d:\t\taddr = %lu\n", i, (unsigned long int) *pte);
 				down_read(&curr_mm->mmap_sem);
-
-				if ((vma->vm_flags & (VM_SHARED | VM_MAYWRITE)) == VM_MAYWRITE) {
-					printk("is_cow_mapping");
-				}
-
-				s = 0;
 				s = remap_pfn_range(vma, addr, *pte, PAGE_SIZE, vma->vm_page_prot);
-				printk("Return = %d\n", s);
 				up_read(&curr_mm->mmap_sem);
-				printk("After up\n");
-				//pte_unmap(pte);
-				printk("After unmap\n");
+				pte_unmap(pte);
 				addr += PAGE_SIZE;
 			} else {
-				//printk("Not present %d\n", i);
+				printk("Not present %d\n", i);
 			}
+		} else {
+			printk("PGD not present %lu\n", va);
 		}
+		va += PAGE_SIZE * 512;
 	}
 	
 	//printk("Pid: %d\t\tStart address: %lu\t\tEnd address: %lu\t\tAddress: %lu\n", p->pid, vma->vm_start, vma->vm_end, addr);
