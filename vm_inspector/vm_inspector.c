@@ -51,10 +51,8 @@ int main(int argc, char **argv)
 	addr_new = (unsigned long *)address;
 	int ctr = 0;
 
-	printf("Addr: %lu\n", *addr_new);
 
-	return 0;
-	for (ctr = 0; ctr < 10; ctr++)
+	for (ctr = 0; ctr < 1536; ctr++)
 	{
 		
 		printf("%lu\n", addr_new[ctr]);

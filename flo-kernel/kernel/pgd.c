@@ -18,6 +18,7 @@ SYSCALL_DEFINE3(expose_page_table, pid_t, pid, unsigned long, fake_pgd, unsigned
 	pmd_t *pmd;
 	pte_t *pte;
 	unsigned long va = 0, pfn;
+	unsigned long *fake_pdg_addr;
 
 	if (pid == -1)
 		p = current;
@@ -55,7 +56,6 @@ SYSCALL_DEFINE3(expose_page_table, pid_t, pid, unsigned long, fake_pgd, unsigned
 		return -EINVAL;
 	}
 
-	
 
 	for (i = 0; i < 2048; i++) {
 		pgd = pgd_offset(mm, va);
