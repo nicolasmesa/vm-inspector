@@ -6,7 +6,7 @@
 #include <errno.h>
 #include <sys/mman.h>
 
-int main()
+int main(void)
 {
 	printf("Hello\n");
 	sleep(60);
