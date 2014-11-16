@@ -60,7 +60,7 @@ SYSCALL_DEFINE3(expose_page_table, pid_t, pid, unsigned long, fake_pgd, unsigned
 	}
 
 
-	for (i = 0; i < 2048; i++) {
+	for (i = 0; i < 1536; i++) {
 		pgd = pgd_offset(mm, va);
 
 		if (copy_to_user(fake_pdg_addr, &nil, sizeof(unsigned long))) {

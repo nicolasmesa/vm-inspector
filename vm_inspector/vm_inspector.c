@@ -25,10 +25,9 @@ typedef struct {
 } pte_t;
 
 
-void print_pte(unsigned long *address)
+void print_pte(unsigned long *address, int index)
 {
 	unsigned long pte;
-	unsigned long index;
 	unsigned long va;
 	unsigned long phys_addr;
 	unsigned long flags;
@@ -44,8 +43,10 @@ void print_pte(unsigned long *address)
 
 	pte = *address;
 	va = (unsigned long) address;
-	index = pgd_index(pte);
 	phys_addr = pte & PHYS_MASK;
+
+	if (phys_addr == 0)
+		return;
 
 	flags = pte & FLAGS_MASK;
 
@@ -55,9 +56,21 @@ void print_pte(unsigned long *address)
 	read_only = ((flags & READ_BIT) == READ_BIT);
 	xn = ((flags & XN_BIT) == XN_BIT);
 
-	printf("%lu\t%lu\t%lu\t%u\t%u\t%u\t%u\t%u\n", index, va, phys_addr, young_bit, file_bit, dirty_bit, read_only, xn);
+	printf("0x%x\t0x%lx\t0x%lx\t%u\t%u\t%u\t%u\t%u\n", index, va, phys_addr, young_bit, file_bit, dirty_bit, read_only, xn);
 }
 
+
+void print_pte_table(unsigned long *address, int index)
+{
+	int i;
+
+	if (address == NULL)
+		return;
+
+	for (i = 0; i < 512; i++) {
+		print_pte(address++, index);
+	}
+}
 
 int expose_page_table(pid_t pid, unsigned long fake_pgd,
 					unsigned long addr)
@@ -77,7 +90,7 @@ int main(int argc, char **argv)
 		pid = -1;
 
 
-	address = mmap(0, 2048 * PAGE_SIZE, PROT_READ, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
+	address = mmap(0, 1536 * PAGE_SIZE, PROT_READ, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
 	//address = mmap(0, 2048 * PAGE_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
 
 	if (address == MAP_FAILED)
@@ -102,14 +115,10 @@ int main(int argc, char **argv)
 	printf("Index: %lu\n", index);
 
 
-	for (ctr = 0; ctr < 2048; ctr++) {
+	for (ctr = 0; ctr < 1536; ctr++) {
 		if (fake_pgd_new[ctr] != NULL) {
-			printf("Index before: %d\t", ctr);
-			print_pte(fake_pgd_new[ctr]);
+			print_pte_table(fake_pgd_new[ctr], ctr);
 			continue;
-
-			printf("Before derreference: %lu\n", (unsigned long) fake_pgd_new[ctr]);
-			printf("Address: %lu\n", *(fake_pgd_new[ctr]));
 		}
 	} 
 

@@ -6,59 +6,9 @@
 #include <errno.h>
 #include <sys/mman.h>
 
-
-#define PAGE_SIZE 4096
-
-typedef struct {
-         unsigned long pte;
-} pte_t;
-
-
-
-int expose_page_table(pid_t pid, unsigned long fake_pgd,
-					unsigned long addr)
+int main()
 {
-	return syscall(378, pid, fake_pgd, addr);
-}
-
-int main(int argc, char **argv)
-{
-	int pid, ret;
-	void *address, *fake_pgd_addr;
-	long addr, fake_pgd;
-	unsigned long **fake_pgd_new;
-	if (argc > 1)
-		pid = atoi(argv[1]);
-	else
-		pid = -1;
-
-
-	address = mmap(0, 2048 * PAGE_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
-
-	if (address == MAP_FAILED)
-		printf("Failed\n");
-
-	addr = (long) address;
-
-	fake_pgd_addr = mmap(0, 3 * PAGE_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
-	fake_pgd = (long) fake_pgd_addr;
-
-	ret = expose_page_table(pid, fake_pgd, addr);
-
-	if (ret < 0)
-		printf("Error: %s\n", strerror(errno));
-
-	fake_pgd_new = (unsigned long **) fake_pgd_addr;
-
-	int ctr = 0;
-
-
-	for (ctr = 0; ctr < 2048; ctr++) {
-		if (fake_pgd_new[ctr] != NULL) {
-			printf("Before derreference: %lu\n", (unsigned long) fake_pgd_new[ctr]);
-			printf("Address: %lu\n", *(fake_pgd_new[ctr]));
-		}
-	} 
-
+	printf("Hello\n");
+	sleep(60);
 	return 0;
 }
