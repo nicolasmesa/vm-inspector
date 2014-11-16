@@ -21,7 +21,7 @@
 #define XN_BIT 0b001000000000
 
 typedef struct {
-         unsigned long pte;
+	unsigned long pte;
 } pte_t;
 
 
@@ -56,7 +56,8 @@ void print_pte(unsigned long *address, int index)
 	read_only = ((flags & READ_BIT) == READ_BIT);
 	xn = ((flags & XN_BIT) == XN_BIT);
 
-	printf("0x%x\t0x%lx\t0x%lx\t%u\t%u\t%u\t%u\t%u\n", index, va, phys_addr, young_bit, file_bit, dirty_bit, read_only, xn);
+	printf("0x%x\t0x%lx\t0x%lx\t%u\t%u\t%u\t%u\t%u\n",
+index, va, phys_addr, young_bit, file_bit, dirty_bit, read_only, xn);
 }
 
 
@@ -67,9 +68,8 @@ void print_pte_table(unsigned long *address, int index)
 	if (address == NULL)
 		return;
 
-	for (i = 0; i < 512; i++) {
+	for (i = 0; i < 512; i++)
 		print_pte(address++, index);
-	}
 }
 
 int expose_page_table(pid_t pid, unsigned long fake_pgd,
@@ -84,21 +84,23 @@ int main(int argc, char **argv)
 	void *address, *fake_pgd_addr;
 	long addr, fake_pgd, index;
 	unsigned long **fake_pgd_new;
+
 	if (argc > 1)
 		pid = atoi(argv[1]);
 	else
 		pid = -1;
-
-
-	address = mmap(0, 1536 * PAGE_SIZE, PROT_READ, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
-	//address = mmap(0, 2048 * PAGE_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
+	address = mmap(0, 1536 * PAGE_SIZE, PROT_READ,
+		MAP_SHARED|MAP_ANONYMOUS, -1, 0);
+	/*address = mmap(0, 2048 * PAGE_SIZE, PROT_READ|PROT_WRITE,
+	MAP_SHARED|MAP_ANONYMOUS, -1, 0);*/
 
 	if (address == MAP_FAILED)
 		printf("Failed\n");
 
 	addr = (long) address;
 
-	fake_pgd_addr = mmap(0, 3 * PAGE_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
+	fake_pgd_addr = mmap(0, 3 * PAGE_SIZE, PROT_READ|PROT_WRITE,
+		MAP_SHARED|MAP_ANONYMOUS, -1, 0);
 	fake_pgd = (long) fake_pgd_addr;
 
 	ret = expose_page_table(pid, fake_pgd, addr);
@@ -114,13 +116,11 @@ int main(int argc, char **argv)
 
 	printf("Index: %lu\n", index);
 
-
 	for (ctr = 0; ctr < 1536; ctr++) {
 		if (fake_pgd_new[ctr] != NULL) {
 			print_pte_table(fake_pgd_new[ctr], ctr);
 			continue;
 		}
-	} 
-
+	}
 	return 0;
 }
