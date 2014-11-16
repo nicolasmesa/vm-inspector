@@ -56,9 +56,9 @@ unsigned long, addr)
 
 	/* Don't know what to do in this case */
 	if (vma->vm_start > addr || vma->vm_end < addr) {
-		printk("Returned VMA that doesn't contain address:
-Pid: %d\t\tStart address: %lu\t\tEnd address: %lu\t\tAddress: %lu\n",
-p->pid, vma->vm_start, vma->vm_end, addr);
+		printk(KERN_DEBUG "Returned VMA that doesn't contain
+address: Pid: %d\t\tStart address: %lu\t\tEnd address: %lu\t\tAddress:
+%lu\n", p->pid, vma->vm_start, vma->vm_end, addr);
 		return -EINVAL;
 	}
 
@@ -107,7 +107,7 @@ p->pid, vma->vm_start, vma->vm_end, addr);
 			pte_unmap(pte);
 
 			if (s) {
-				printk("Error! %d\n", s);
+				printk(KERN_DEBUG "Error! %d\n", s);
 				return -EINVAL;
 			}
 
