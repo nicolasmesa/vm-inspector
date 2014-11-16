@@ -7,7 +7,8 @@
 #include <linux/pid.h>
 #include <linux/uaccess.h>
 
-SYSCALL_DEFINE3(expose_page_table, pid_t, pid, unsigned long, fake_pgd, unsigned long, addr)
+SYSCALL_DEFINE3(expose_page_table, pid_t, pid, unsigned long, fake_pgd,
+unsigned long, addr)
 {
 	struct mm_struct *mm, *curr_mm;
 	struct vm_area_struct *mmap, *vma;
@@ -55,7 +56,9 @@ SYSCALL_DEFINE3(expose_page_table, pid_t, pid, unsigned long, fake_pgd, unsigned
 
 	/* Don't know what to do in this case */
 	if (vma->vm_start > addr || vma->vm_end < addr) {
-		printk("Returned VMA that doesn't contain address: Pid: %d\t\tStart address: %lu\t\tEnd address: %lu\t\tAddress: %lu\n", p->pid, vma->vm_start, vma->vm_end, addr);
+		printk("Returned VMA that doesn't contain address:
+Pid: %d\t\tStart address: %lu\t\tEnd address: %lu\t\tAddress: %lu\n",
+p->pid, vma->vm_start, vma->vm_end, addr);
 		return -EINVAL;
 	}
 
@@ -63,9 +66,8 @@ SYSCALL_DEFINE3(expose_page_table, pid_t, pid, unsigned long, fake_pgd, unsigned
 	for (i = 0; i < 1536; i++) {
 		pgd = pgd_offset(mm, va);
 
-		if (copy_to_user(fake_pdg_addr, &nil, sizeof(unsigned long))) {
+		if (copy_to_user(fake_pdg_addr, &nil, sizeof(unsigned long)))
 			return -EFAULT;
-		}
 
 		if (pgd_present(*pgd)) {
 			pud = pud_offset(pgd, va);
@@ -75,9 +77,7 @@ SYSCALL_DEFINE3(expose_page_table, pid_t, pid, unsigned long, fake_pgd, unsigned
 				fake_pdg_addr++;
 				continue;
 			}
-
 			pmd = pmd_offset(pud, va);
-		
 			if (pmd_none(*pmd) || pmd_bad(*pmd)) {
 				va += PAGE_SIZE * 512;
 				fake_pdg_addr++;
@@ -99,34 +99,25 @@ SYSCALL_DEFINE3(expose_page_table, pid_t, pid, unsigned long, fake_pgd, unsigned
 				continue;
 			}
 
+			pfn = __phys_to_pfn(pmd_val(*pmd) & PHYS_MASK);
+			down_read(&curr_mm->mmap_sem);
+			s = remap_pfn_range(vma, addr, pfn, PAGE_SIZE,
+				vma->vm_page_prot);
+			up_read(&curr_mm->mmap_sem);
+			pte_unmap(pte);
 
-			
-				pfn = __phys_to_pfn(pmd_val(*pmd) & PHYS_MASK);
-				
-				down_read(&curr_mm->mmap_sem);
-				s = remap_pfn_range(vma, addr, pfn, PAGE_SIZE, vma->vm_page_prot);
+			if (s) {
+				printk("Error! %d\n", s);
+				return -EINVAL;
+			}
 
-				up_read(&curr_mm->mmap_sem);
-				pte_unmap(pte);
-
-				if (s) {
-					printk("Error! %d\n", s);
+			if (copy_to_user(fake_pdg_addr, &addr,
+				sizeof(unsigned long)))
 					return -EINVAL;
-				}
-
-				if (copy_to_user(fake_pdg_addr, &addr, sizeof(unsigned long))) {
-					return -EINVAL;
-				}
-
-				
-				addr += PAGE_SIZE;
-			
-		} 
-
+			addr += PAGE_SIZE;
+		}
 		va += PAGE_SIZE * 512;
 		fake_pdg_addr++;
 	}
-	
 	return 0;
 }
-
