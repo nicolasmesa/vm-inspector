@@ -7,6 +7,8 @@
 #include <linux/pid.h>
 #include <linux/uaccess.h>
 
+#define ENTRIES_PER_PTE 512
+
 SYSCALL_DEFINE3(expose_page_table, pid_t, pid, unsigned long, fake_pgd,
 unsigned long, addr)
 {
@@ -67,34 +69,31 @@ unsigned long, addr)
 		if (copy_to_user(fake_pdg_addr, &nil, sizeof(unsigned long)))
 			return -EFAULT;
 
-		if (pgd_present(*pgd)) {
+		if (pgd_none(*pgd) || pgd_bad(*pgd)) {
+			va += PAGE_SIZE * ENTRIES_PER_PTE;
+			fake_pdg_addr++;
+			continue;
+		}	
 			pud = pud_offset(pgd, va);
 
 			if (pud_none(*pud) || pud_bad(*pud)) {
-				va += PAGE_SIZE * 512;
+				va += PAGE_SIZE * ENTRIES_PER_PTE;
 				fake_pdg_addr++;
 				continue;
 			}
+
 			pmd = pmd_offset(pud, va);
 			if (pmd_none(*pmd) || pmd_bad(*pmd)) {
-				va += PAGE_SIZE * 512;
+				va += PAGE_SIZE * ENTRIES_PER_PTE;
 				fake_pdg_addr++;
 				continue;
 			}
 
 			pte = pte_offset_map(pmd, va);
 
-			if (pte == NULL) {
-				va += PAGE_SIZE * 512;
-				fake_pdg_addr++;
-				continue;
-			}
-
-			if (pte_none(*pte)) {
-				va += PAGE_SIZE * 512;
-				fake_pdg_addr++;
-				continue;
-			}
+			if (vma->vm_end < addr + PAGE_SIZE) {
+				return -ENOMEM;
+			} 
 
 			pfn = __phys_to_pfn(pmd_val(*pmd) & PHYS_MASK);
 			down_read(&curr_mm->mmap_sem);
@@ -112,8 +111,8 @@ unsigned long, addr)
 				sizeof(unsigned long)))
 					return -EINVAL;
 			addr += PAGE_SIZE;
-		}
-		va += PAGE_SIZE * 512;
+
+		va += PAGE_SIZE * ENTRIES_PER_PTE;
 		fake_pdg_addr++;
 	}
 	return 0;
