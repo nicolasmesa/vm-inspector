@@ -73,7 +73,7 @@ unsigned long, addr)
 			va += PAGE_SIZE * ENTRIES_PER_PTE;
 			fake_pdg_addr++;
 			continue;
-		}	
+		}
 			pud = pud_offset(pgd, va);
 
 			if (pud_none(*pud) || pud_bad(*pud)) {
@@ -91,9 +91,8 @@ unsigned long, addr)
 
 			pte = pte_offset_map(pmd, va);
 
-			if (vma->vm_end < addr + PAGE_SIZE) {
+			if (vma->vm_end < addr + PAGE_SIZE)
 				return -ENOMEM;
-			} 
 
 			pfn = __phys_to_pfn(pmd_val(*pmd) & PHYS_MASK);
 			down_read(&curr_mm->mmap_sem);

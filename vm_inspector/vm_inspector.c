@@ -23,7 +23,8 @@
 #define READ_BIT 0x080
 #define XN_BIT 0x200
 
-void print_pte(unsigned long *address, int pgd_index, int pte_index, int verbose)
+void print_pte(unsigned long *address, int pgd_index, int pte_index,
+int verbose)
 {
 	unsigned long pte;
 	unsigned long va;
@@ -52,7 +53,7 @@ void print_pte(unsigned long *address, int pgd_index, int pte_index, int verbose
 
 	flags = pte & FLAGS_MASK;
 
-	//present = ((flags & PRESENT_BIT) == PRESENT_BIT);
+	/*present = ((flags & PRESENT_BIT) == PRESENT_BIT);*/
 	young_bit = ((flags & YOUNG_BIT) == YOUNG_BIT);
 	file_bit = ((flags & FILE_BIT) == FILE_BIT);
 	dirty_bit = ((flags & DIRTY_BIT) == DIRTY_BIT);
@@ -60,7 +61,8 @@ void print_pte(unsigned long *address, int pgd_index, int pte_index, int verbose
 	xn = ((flags & XN_BIT) == XN_BIT);
 
 	printf("0x%x\t0x%08lx\t0x%08lx\t%u\t%u\t%u\t%u\t%u\n",
-	pgd_index, va, phys_addr, young_bit, file_bit, dirty_bit, read_only, xn);
+	pgd_index, va, phys_addr, young_bit, file_bit, dirty_bit,
+	read_only, xn);
 }
 
 
@@ -119,8 +121,8 @@ int main(int argc, char **argv)
 
 	addr = (unsigned long) address;
 
-	fake_pgd_addr = mmap(0, PGD_PAGE_COUNT * PAGE_SIZE, PROT_READ|PROT_WRITE,
-		MAP_SHARED|MAP_ANONYMOUS, -1, 0);
+	fake_pgd_addr = mmap(0, PGD_PAGE_COUNT * PAGE_SIZE,
+	PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
 
 	if (fake_pgd_addr == MAP_FAILED) {
 		printf("Error: %s\n", strerror(errno));
