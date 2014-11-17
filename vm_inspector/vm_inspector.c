@@ -60,7 +60,7 @@ void print_pte(unsigned long *address, int index, int verbose)
 		return;
 
 	flags = pte & FLAGS_MASK;
-	
+
 	present = ((flags & PRESENT_BIT) == PRESENT_BIT);
 	young_bit = ((flags & YOUNG_BIT) == YOUNG_BIT);
 	file_bit = ((flags & FILE_BIT) == FILE_BIT);
@@ -68,7 +68,7 @@ void print_pte(unsigned long *address, int index, int verbose)
 	read_only = ((flags & READ_BIT) == READ_BIT);
 	xn = ((flags & XN_BIT) == XN_BIT);
 
-	if(present || !present)
+	if (present || !present)
 		printf("0x%x\t0x%lx\t0x%lx\t%u\t%u\t%u\t%u\t%u\n",
 	index, va, phys_addr, young_bit, file_bit, dirty_bit, read_only, xn);
 }
@@ -101,20 +101,20 @@ int main(int argc, char **argv)
 
 	if (argc < 2 || argc > 3) {
 
-		printf("Usage: ./vm_inspector <pid : use -1 for this proc> -v"
-						" (for verbose)\n");
+		printf("Usage: ./vm_inspector <pid : use -1 for this proc>");
+		printf("-v (for verbose)\n");
 		exit(1);
 	}
 
 	pid = atoi(argv[1]);
-	
-	if(argc == 3) {	
-		
+
+	if (argc == 3) {
 		if (strcmp(argv[2], "-v") == 0)
-			verbose = 1;	
+			verbose = 1;
 		else {
-			printf("Usage: ./vm_inspector <pid : use -1 for this proc> -v"
-						" (for verbose)\n");
+			printf("Usage: ./vm_inspector <pid : use -1");
+			printf(" for this proc>");
+			printf("-v (for verbose)\n");
 			exit(1);
 		}
 	}
@@ -152,6 +152,6 @@ int main(int argc, char **argv)
 			continue;
 		}
 	}
-	
+
 	return 0;
 }

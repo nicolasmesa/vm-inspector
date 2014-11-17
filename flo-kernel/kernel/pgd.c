@@ -56,9 +56,7 @@ unsigned long, addr)
 
 	/* Don't know what to do in this case */
 	if (vma->vm_start > addr || vma->vm_end < addr) {
-		printk(KERN_DEBUG "Returned VMA that doesn't contain"
-"address: Pid: %d\t\tStart address: %lu\t\tEnd address: %lu\t\tAddress:"
-"%lu\n", p->pid, vma->vm_start, vma->vm_end, addr);
+		trace_printk("VMA Error o.O - Unsure if EINVAL or ENOMEM\n");
 		return -EINVAL;
 	}
 
@@ -87,7 +85,6 @@ unsigned long, addr)
 			pte = pte_offset_map(pmd, va);
 
 			if (pte == NULL) {
-				printk("Was null\n");
 				va += PAGE_SIZE * 512;
 				fake_pdg_addr++;
 				continue;
@@ -107,7 +104,7 @@ unsigned long, addr)
 			pte_unmap(pte);
 
 			if (s) {
-				printk(KERN_DEBUG "Error! %d\n", s);
+				trace_printk("Remap Error %d\n", s);
 				return -EINVAL;
 			}
 
