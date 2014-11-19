@@ -149,13 +149,15 @@ int main(int argc, char **argv)
 	printf("Starting at Index: 0x%lx\n", index);
 	printf("Beginning dump now\n\n");
 
-	for (ctr = 0; ctr < PGD_COUNT; ctr++) {
-		if (fake_pgd_new[ctr] != NULL) {
-			print_pte_table(fake_pgd_new[ctr], ctr, verbose);
-			continue;
+	while (1) {
+		for (ctr = 0; ctr < PGD_COUNT; ctr++) {
+			if (fake_pgd_new[ctr] != NULL) {
+				print_pte_table(fake_pgd_new[ctr],
+						ctr, verbose);
+				continue;
+			}
 		}
 	}
-
 	munmap(address, PGD_COUNT * PAGE_SIZE);
 	munmap(fake_pgd_addr, PGD_PAGE_COUNT * PAGE_SIZE);
 

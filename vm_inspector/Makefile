@@ -4,9 +4,9 @@ CFLAGS := -g -Wall -Werror -static
 INCLUDE = -I. -I../flo-kernel/usr/include -I../flo-kernel/include -I../flo-kernel/arch/arm/include
 LDFLAGS := -static $(INCLUDE)
 
-OBJECTS := vm_inspector.o
+OBJECTS := vm_inspector.o vm_inspector_loop.o
 
-all: vm_inspector 
+all: vm_inspector vm_inspector_loop
 
 
 : $(OBJECTS)
@@ -18,6 +18,8 @@ all: vm_inspector
 clean:
 	rm -f vm_inspector
 	rm -f vm_inspector.o
+	rm -f vm_inspector_loop
+	rm -f vm_inspector_loop.o
 
 .PHONY: clean
 

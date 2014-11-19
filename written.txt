@@ -1,0 +1,28 @@
+Homework 5 - Investigation
+Team 23
+
+Cross referencing and checking was done in the following manner:
+--> Get the non-verbose dump of the PTE of Zygote and other processes through vm_inspector
+--> Get the memory map (virtual addresses) through /proc/pid/maps of Zygote and other processes
+
+First step to check that vm_inspector dumps are working is to ensure that the addresses in maps
+and the virtual addresses shown by the dumps match, and we are pleased to report that they do. 
+Now, it is a well known fact (through Homework 2 as well) that Zygote is the parent process
+of most of the user applications that run on Android. This is done in a VM-like manner where the
+shared libraries are loaded through Zygote and are only shared with its child processes and not copied.
+It also supports our intuition that the shared pages are flagged read-only because it would not
+be an efficient design if those pages could be written to. 
+
+To verify this we sorted the dumps based on the physical addresses to see if the physical frames are
+actually being shared and they are. Following are some examples of the resources to which the
+common frames point:
+
+/dev/__properties which appears to be the properties of a device, intuitively a storage device
+/system/lib/libicuuc.so which as the extension shows is a shared object
+/system/lib/libEGL.so which is another shared object
+
+Opening up an app and playing with it has added the number of pages used and for the example
+that we ran (Calendar), the count increased by about 25. In addition, some of the pages,
+quite likely pertaining to the memory allocated to the Calendar app were dirtied when
+the app was used a bit. We also believe that some pages were added to Zygote but we cannot
+conclude if they are as a result of activity in one of its child processes.  
