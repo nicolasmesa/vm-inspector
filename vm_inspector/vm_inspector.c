@@ -101,7 +101,7 @@ int main(int argc, char **argv)
 	pid = atoi(argv[1]);
 
 	if (argc == 3) {
-		if (strcmp(argv[2], "-v") == 0)
+		if (strcmp(argv[1], "-v") == 0)
 			verbose = 1;
 		else {
 			printf("Usage: ./vm_inspector <pid : use -1");
