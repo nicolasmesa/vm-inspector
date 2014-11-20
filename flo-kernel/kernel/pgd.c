@@ -55,12 +55,13 @@ unsigned long, addr)
 
 	vma = find_vma(curr_mm, addr);
 
-	if (vma->vm_flags & VM_WRITE)
-		return -EACCES;
-
 	/* Shouldn't happen */
 	if (vma == NULL)
 		return -EINVAL;
+
+	if (vma->vm_flags & VM_WRITE)
+		return -EACCES;
+
 
 	/* Don't know what to do in this case */
 	if (vma->vm_start > addr || vma->vm_end < addr) {
