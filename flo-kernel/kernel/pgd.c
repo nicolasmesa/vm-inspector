@@ -24,6 +24,7 @@ unsigned long, addr)
 	unsigned long va = 0, pfn, nil = 0;
 	unsigned long *fake_pdg_addr;
 	unsigned long bound = TASK_SIZE / (1024 * 1024 * 2);
+	struct page *page;
 
 	if (pid == -1)
 		p = current;
@@ -99,6 +100,9 @@ unsigned long, addr)
 			if (vma->vm_end < addr + PAGE_SIZE)
 				return -ENOMEM;
 
+			page = pmd_page(*pmd);
+			get_page(page);
+		
 			pfn = __phys_to_pfn(pmd_val(*pmd) & PHYS_MASK);
 			down_read(&curr_mm->mmap_sem);
 			s = remap_pfn_range(vma, addr, pfn, PAGE_SIZE,

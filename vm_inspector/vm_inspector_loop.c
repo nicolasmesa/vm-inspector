@@ -157,6 +157,7 @@ int main(int argc, char **argv)
 				continue;
 			}
 		}
+		sleep(5);
 	}
 	munmap(address, PGD_COUNT * PAGE_SIZE);
 	munmap(fake_pgd_addr, PGD_PAGE_COUNT * PAGE_SIZE);
