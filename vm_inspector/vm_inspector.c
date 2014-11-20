@@ -93,20 +93,20 @@ int main(int argc, char **argv)
 
 	if (argc < 2 || argc > 3) {
 
-		printf("Usage: ./vm_inspector <pid : use -1 for this proc>");
-		printf("-v (for verbose)\n");
+		printf("Usage: ./vm_inspector -v (for verbose)");
+		printf(" <pid: use -1 for this proc>\n");
 		exit(1);
 	}
 
 	pid = atoi(argv[1]);
 
 	if (argc == 3) {
+		pid = atoi(argv[2]);
 		if (strcmp(argv[1], "-v") == 0)
 			verbose = 1;
 		else {
-			printf("Usage: ./vm_inspector <pid : use -1");
-			printf(" for this proc>");
-			printf("-v (for verbose)\n");
+			printf("Usage: ./vm_inspector -v (for verbose)");
+			printf(" <pid: use -1 for this proc>\n");
 			exit(1);
 		}
 	}
