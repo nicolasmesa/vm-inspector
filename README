@@ -1,0 +1,16 @@
+Homework 5 Programming - Team 23
+
+The required system call is defined in flo-kernel/kernel/pgd.c
+Required test programs are in the vm_inspector directory
+
+One of them reports a single dump of the PTE
+The other one prints the dump in a loop as evident from their names
+
+Functionality can be verified by checking the VA usage in /proc/pid/maps
+and using the pagemap program that was provided on Piazza.
+
+Sources:
+
+http://www.makelinux.net/ldd3/chp-15-sect-2 - This source explains the usage of get_page() function
+which keeps track of the reference counts per page. The system call makes use of this function so
+that the pages are not allocated to some other process when the process that we are investigating ends.

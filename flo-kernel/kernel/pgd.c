@@ -80,45 +80,44 @@ unsigned long, addr)
 			fake_pdg_addr++;
 			continue;
 		}
-			pud = pud_offset(pgd, va);
+		pud = pud_offset(pgd, va);
 
-			if (pud_none(*pud) || pud_bad(*pud)) {
-				va += PAGE_SIZE * ENTRIES_PER_PTE;
-				fake_pdg_addr++;
-				continue;
-			}
+		if (pud_none(*pud) || pud_bad(*pud)) {
+			va += PAGE_SIZE * ENTRIES_PER_PTE;
+			fake_pdg_addr++;
+			continue;
+		}
 
-			pmd = pmd_offset(pud, va);
-			if (pmd_none(*pmd) || pmd_bad(*pmd)) {
-				va += PAGE_SIZE * ENTRIES_PER_PTE;
-				fake_pdg_addr++;
-				continue;
-			}
+		pmd = pmd_offset(pud, va);
+		if (pmd_none(*pmd) || pmd_bad(*pmd)) {
+			va += PAGE_SIZE * ENTRIES_PER_PTE;
+			fake_pdg_addr++;
+			continue;
+		}
 
-			pte = pte_offset_map(pmd, va);
+		pte = pte_offset_map(pmd, va);
 
-			if (vma->vm_end < addr + PAGE_SIZE)
-				return -ENOMEM;
+		if (vma->vm_end < addr + PAGE_SIZE)
+			return -ENOMEM;
 
-			page = pmd_page(*pmd);
-			get_page(page);
-		
-			pfn = __phys_to_pfn(pmd_val(*pmd) & PHYS_MASK);
-			down_read(&curr_mm->mmap_sem);
-			s = remap_pfn_range(vma, addr, pfn, PAGE_SIZE,
-				vma->vm_page_prot);
-			up_read(&curr_mm->mmap_sem);
-			pte_unmap(pte);
+		page = pmd_page(*pmd);
+		get_page(page);
+		pfn = __phys_to_pfn(pmd_val(*pmd) & PHYS_MASK);
+		down_read(&curr_mm->mmap_sem);
+		s = remap_pfn_range(vma, addr, pfn, PAGE_SIZE,
+			vma->vm_page_prot);
+		up_read(&curr_mm->mmap_sem);
+		pte_unmap(pte);
 
-			if (s) {
-				trace_printk("Remap Error %d\n", s);
+		if (s) {
+			trace_printk("Remap Error %d\n", s);
+			return -EINVAL;
+		}
+
+		if (copy_to_user(fake_pdg_addr, &addr,
+			sizeof(unsigned long)))
 				return -EINVAL;
-			}
-
-			if (copy_to_user(fake_pdg_addr, &addr,
-				sizeof(unsigned long)))
-					return -EINVAL;
-			addr += PAGE_SIZE;
+		addr += PAGE_SIZE;
 
 		va += PAGE_SIZE * ENTRIES_PER_PTE;
 		fake_pdg_addr++;

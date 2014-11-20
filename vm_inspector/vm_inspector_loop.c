@@ -6,9 +6,8 @@
 #include <errno.h>
 #include <sys/mman.h>
 
-
 #define PAGE_SIZE 4096
-#define PGD_COUNT 1536
+#define PGD_COUNT 1528
 #define PGD_PAGE_COUNT 3
 
 #define PGDIR_SHIFT             21
@@ -93,20 +92,20 @@ int main(int argc, char **argv)
 
 	if (argc < 2 || argc > 3) {
 
-		printf("Usage: ./vm_inspector <pid : use -1 for this proc>");
-		printf("-v (for verbose)\n");
+		printf("Usage: ./vm_inspector -v (for verbose)");
+		printf(" <pid: use -1 for this proc>\n");
 		exit(1);
 	}
 
 	pid = atoi(argv[1]);
 
 	if (argc == 3) {
-		if (strcmp(argv[2], "-v") == 0)
+		pid = atoi(argv[2]);
+		if (strcmp(argv[1], "-v") == 0)
 			verbose = 1;
 		else {
-			printf("Usage: ./vm_inspector <pid : use -1");
-			printf(" for this proc>");
-			printf("-v (for verbose)\n");
+			printf("Usage: ./vm_inspector -v (for verbose)");
+			printf(" <pid: use -1 for this proc>\n");
 			exit(1);
 		}
 	}
@@ -148,7 +147,6 @@ int main(int argc, char **argv)
 
 	printf("Starting at Index: 0x%lx\n", index);
 	printf("Beginning dump now\n\n");
-
 	while (1) {
 		for (ctr = 0; ctr < PGD_COUNT; ctr++) {
 			if (fake_pgd_new[ctr] != NULL) {
@@ -159,6 +157,7 @@ int main(int argc, char **argv)
 		}
 		sleep(5);
 	}
+
 	munmap(address, PGD_COUNT * PAGE_SIZE);
 	munmap(fake_pgd_addr, PGD_PAGE_COUNT * PAGE_SIZE);
 
