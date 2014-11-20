@@ -99,7 +99,7 @@ unsigned long, addr)
 		pte = pte_offset_map(pmd, va);
 
 		if (vma->vm_end < addr + PAGE_SIZE)
-			return -ENOMEM;
+			return -EINVAL;
 
 		page = pmd_page(*pmd);
 		get_page(page);
