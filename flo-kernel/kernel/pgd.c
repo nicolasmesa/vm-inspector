@@ -23,6 +23,7 @@ unsigned long, addr)
 	pte_t *pte;
 	unsigned long va = 0, pfn, nil = 0;
 	unsigned long *fake_pdg_addr;
+	unsigned long bound = TASK_SIZE / (1024 * 1024 * 2);
 
 	if (pid == -1)
 		p = current;
@@ -30,6 +31,7 @@ unsigned long, addr)
 		pid_struct = find_get_pid(pid);
 		p = get_pid_task(pid_struct, PIDTYPE_PID);
 	}
+
 
 	if (p == NULL)
 		return -EINVAL;
@@ -52,6 +54,11 @@ unsigned long, addr)
 
 	vma = find_vma(curr_mm, addr);
 
+	if (vma->vm_flags & VM_WRITE) {
+		printk("Write flag is on\n");
+		return -EACCES;
+	}
+
 	/* Shouldn't happen */
 	if (vma == NULL)
 		return -EINVAL;
@@ -63,7 +70,7 @@ unsigned long, addr)
 	}
 
 
-	for (i = 0; i < 1536; i++) {
+	for (i = 0; i < bound; i++) {
 		pgd = pgd_offset(mm, va);
 
 		if (copy_to_user(fake_pdg_addr, &nil, sizeof(unsigned long)))

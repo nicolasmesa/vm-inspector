@@ -6,9 +6,8 @@
 #include <errno.h>
 #include <sys/mman.h>
 
-
 #define PAGE_SIZE 4096
-#define PGD_COUNT 1536
+#define PGD_COUNT 1528
 #define PGD_PAGE_COUNT 3
 
 #define PGDIR_SHIFT             21
