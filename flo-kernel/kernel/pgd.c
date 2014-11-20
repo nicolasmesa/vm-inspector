@@ -54,10 +54,8 @@ unsigned long, addr)
 
 	vma = find_vma(curr_mm, addr);
 
-	if (vma->vm_flags & VM_WRITE) {
-		printk("Write flag is on\n");
+	if (vma->vm_flags & VM_WRITE)
 		return -EACCES;
-	}
 
 	/* Shouldn't happen */
 	if (vma == NULL)
