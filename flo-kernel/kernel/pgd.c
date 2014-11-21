@@ -20,7 +20,7 @@ unsigned long, addr)
 	pgd_t *pgd;
 	pud_t *pud;
 	pmd_t *pmd;
-	pte_t *pte;
+	/* pte_t *pte; */
 	unsigned long va = 0, pfn, nil = 0;
 	unsigned long *fake_pdg_addr;
 	unsigned long bound = TASK_SIZE / (1024 * 1024 * 2);
@@ -96,19 +96,19 @@ unsigned long, addr)
 			continue;
 		}
 
-		pte = pte_offset_map(pmd, va);
+		/* pte = pte_offset_map(pmd, va); */
 
 		if (vma->vm_end < addr + PAGE_SIZE)
 			return -EINVAL;
 
 		page = pmd_page(*pmd);
-		get_page(page);
+		get_page(page); /* Automatically keeps track of ref count */
 		pfn = __phys_to_pfn(pmd_val(*pmd) & PHYS_MASK);
 		down_read(&curr_mm->mmap_sem);
 		s = remap_pfn_range(vma, addr, pfn, PAGE_SIZE,
 			vma->vm_page_prot);
 		up_read(&curr_mm->mmap_sem);
-		pte_unmap(pte);
+		/* pte_unmap(pte); */
 
 		if (s) {
 			trace_printk("Remap Error %d\n", s);
